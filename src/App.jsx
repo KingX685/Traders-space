@@ -2054,22 +2054,54 @@ function computeProfitFactor(trades) {
 function UpgradeModal({ open, onClose, showToast }) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
-  useEffect(() => { if (!open) { setEmail(''); setSubmitted(false); } }, [open]);
+  useEffect(() => {
+    if (!open) {
+      setEmail('');
+      setSubmitted(false);
+      setSubmitting(false);
+      setError(null);
+    }
+  }, [open]);
 
   const submit = async (e) => {
     e?.preventDefault();
-    if (!email.includes('@')) return;
-    // Local storage now; swap to Formspree fetch() when ready.
+    if (!email.includes('@') || submitting) return;
+    setSubmitting(true);
+    setError(null);
+
+    // Always save locally first, so we never lose an email
+    // even if Formspree is down or blocked.
     try {
-      await fetch('https://formspree.io/f/xvzdydze', {
-     method: 'POST',
-     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-     body: JSON.stringify({ email })
-   });
+      const list = JSON.parse(localStorage.getItem('tlp:waitlist') || '[]');
+      if (!list.includes(email)) list.push(email);
+      localStorage.setItem('tlp:waitlist', JSON.stringify(list));
     } catch {}
-    setSubmitted(true);
-    showToast?.({ msg: "You're on the waitlist", type: 'success' });
+
+    // Then send to Formspree (the real inbox)
+    try {
+      const res = await fetch('https://formspree.io/f/xvzdydze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          email,
+          source: 'in-app upgrade modal',
+          timestamp: new Date().toISOString(),
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Submission failed (${res.status})`);
+      }
+      setSubmitted(true);
+      showToast?.({ msg: "You're on the waitlist", type: 'success' });
+    } catch (err) {
+      setError(err.message || 'Network error. Please check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -2091,8 +2123,17 @@ function UpgradeModal({ open, onClose, showToast }) {
 
           <form onSubmit={submit} className="tlp-upgrade-form">
             <input type="email" className="tlp-input" autoFocus required value={email}
-              onChange={e => setEmail(e.target.value)} placeholder="you@email.com" />
-            <Btn type="submit" full>Reserve my spot <Sparkles size={14} /></Btn>
+              onChange={e => { setEmail(e.target.value); setError(null); }}
+              placeholder="you@email.com" disabled={submitting} />
+            {error && (
+              <div className="tlp-form-error">
+                <AlertCircle size={13} />
+                <span>{error}</span>
+              </div>
+            )}
+            <Btn type="submit" full disabled={submitting || !email.includes('@')}>
+              {submitting ? <>Sending… <RefreshCw size={14} className="tlp-spin" /></> : <>Reserve my spot <Sparkles size={14} /></>}
+            </Btn>
           </form>
           <small className="tlp-hint" style={{ textAlign: 'center', display: 'block', marginTop: 12 }}>
             No spam. One email when Pro is ready.
@@ -2893,6 +2934,8 @@ function GlobalStyles() {
       .tlp-upgrade-perks svg { color: var(--accent); flex-shrink: 0; margin-top: 3px; }
       .tlp-upgrade-form { display: flex; flex-direction: column; gap: 10px; align-self: stretch; }
       .tlp-upgrade-done { padding: 24px 0; }
+      .tlp-form-error { display: flex; align-items: flex-start; gap: 7px; padding: 10px 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 9px; font-size: 12px; color: var(--loss); line-height: 1.4; text-align: left; }
+      .tlp-form-error svg { flex-shrink: 0; margin-top: 1px; }
     `}</style>
   );
 }

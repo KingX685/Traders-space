@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Activity, ArrowRight, Check, Calendar, BarChart3, Target,
   Brain, Lock, Sparkles, Zap, TrendingUp, Eye, Star, Github,
-  ChevronDown, ChevronRight, Shield, Smartphone, Database
+  ChevronDown, ChevronRight, Shield, Smartphone, Database,
+  AlertCircle, RefreshCw
 } from 'lucide-react';
 
 // ============================================================
@@ -367,21 +368,43 @@ function FeatureRow({ icon, title, text, tag, reverse }) {
 function WaitlistModal({ onClose }) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   const submit = async (e) => {
     e?.preventDefault();
-    if (!email.includes('@')) return;
-    // Store locally so the user sees confirmation. To collect real signups,
-    // replace this with a fetch() to Formspree, Tally, or your own endpoint:
-    //   await fetch('https://formspree.io/f/YOUR_ID', { method: 'POST', body: JSON.stringify({ email }) })
+    if (!email.includes('@') || submitting) return;
+    setSubmitting(true);
+    setError(null);
+
+    // Always save locally first as a backup
     try {
-      await fetch('https://formspree.io/f/xvzdydze', {
-     method: 'POST',
-     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-     body: JSON.stringify({ email })
-   });
+      const list = JSON.parse(localStorage.getItem('tlp:waitlist') || '[]');
+      if (!list.includes(email)) list.push(email);
+      localStorage.setItem('tlp:waitlist', JSON.stringify(list));
     } catch {}
-    setSubmitted(true);
+
+    // Send to Formspree (the real inbox)
+    try {
+      const res = await fetch('https://formspree.io/f/xvzdydze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          email,
+          source: 'landing page waitlist',
+          timestamp: new Date().toISOString(),
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Submission failed (${res.status})`);
+      }
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message || 'Network error. Please check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -398,14 +421,21 @@ function WaitlistModal({ onClose }) {
               <input
                 type="email"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => { setEmail(e.target.value); setError(null); }}
                 placeholder="you@email.com"
                 className="lp-input"
                 autoFocus
                 required
+                disabled={submitting}
               />
-              <button type="submit" className="lp-btn lp-btn-primary lp-btn-full">
-                Reserve my spot <ArrowRight size={14} />
+              {error && (
+                <div className="lp-form-error">
+                  <AlertCircle size={13} />
+                  <span>{error}</span>
+                </div>
+              )}
+              <button type="submit" className="lp-btn lp-btn-primary lp-btn-full" disabled={submitting || !email.includes('@')}>
+                {submitting ? (<>Sending… <RefreshCw size={14} className="lp-spin" /></>) : (<>Reserve my spot <ArrowRight size={14} /></>)}
               </button>
             </form>
             <small className="lp-modal-fine">No spam. One email when Pro is ready. Unsubscribe anytime.</small>
@@ -641,7 +671,13 @@ function LandingStyles() {
       .lp-form { display: flex; flex-direction: column; gap: 10px; }
       .lp-input { width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 11px; color: #f4f4f5; font-size: 15px; font-family: inherit; transition: all 0.15s ease; }
       .lp-input:focus { outline: none; border-color: #10d9a0; box-shadow: 0 0 0 3px rgba(16, 217, 160, 0.15); }
+      .lp-input:disabled { opacity: 0.5; cursor: not-allowed; }
       .lp-modal-fine { display: block; font-size: 11px; color: #52525b; margin-top: 14px; }
+      .lp-form-error { display: flex; align-items: flex-start; gap: 7px; padding: 10px 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 9px; font-size: 12px; color: #ef4444; line-height: 1.4; text-align: left; }
+      .lp-form-error svg { flex-shrink: 0; margin-top: 1px; }
+      .lp-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; box-shadow: 0 4px 24px rgba(16, 217, 160, 0.2) !important; }
+      .lp-spin { animation: lp-spin 0.9s linear infinite; }
+      @keyframes lp-spin { to { transform: rotate(360deg); } }
     `}</style>
   );
 }
