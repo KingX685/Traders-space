@@ -2062,9 +2062,11 @@ function UpgradeModal({ open, onClose, showToast }) {
     if (!email.includes('@')) return;
     // Local storage now; swap to Formspree fetch() when ready.
     try {
-      const list = JSON.parse(localStorage.getItem('tlp:waitlist') || '[]');
-      if (!list.includes(email)) list.push(email);
-      localStorage.setItem('tlp:waitlist', JSON.stringify(list));
+      await fetch('https://formspree.io/f/xvzdydze', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+     body: JSON.stringify({ email })
+   });
     } catch {}
     setSubmitted(true);
     showToast?.({ msg: "You're on the waitlist", type: 'success' });

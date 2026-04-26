@@ -375,9 +375,11 @@ function WaitlistModal({ onClose }) {
     // replace this with a fetch() to Formspree, Tally, or your own endpoint:
     //   await fetch('https://formspree.io/f/YOUR_ID', { method: 'POST', body: JSON.stringify({ email }) })
     try {
-      const list = JSON.parse(localStorage.getItem('tlp:waitlist') || '[]');
-      if (!list.includes(email)) list.push(email);
-      localStorage.setItem('tlp:waitlist', JSON.stringify(list));
+      await fetch('https://formspree.io/f/xvzdydze', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+     body: JSON.stringify({ email })
+   });
     } catch {}
     setSubmitted(true);
   };
