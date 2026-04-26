@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#05120e"/>
+      <stop offset="100%" stop-color="#0a1d17"/>
+    </linearGradient>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#10d9a0"/>
+      <stop offset="100%" stop-color="#3ee7bc"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#10d9a0" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#10d9a0" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10d9a0" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#10d9a0" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="orb" cx="0.85" cy="0.15" r="0.5">
+      <stop offset="0%" stop-color="#10d9a0" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#10d9a0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- bg -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#orb)"/>
+
+  <!-- grid -->
+  <g opacity="0.08" stroke="#ffffff" stroke-width="1">
+    <line x1="0" y1="105" x2="1200" y2="105"/>
+    <line x1="0" y1="210" x2="1200" y2="210"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="0" y1="420" x2="1200" y2="420"/>
+    <line x1="0" y1="525" x2="1200" y2="525"/>
+    <line x1="100" y1="0" x2="100" y2="630"/>
+    <line x1="200" y1="0" x2="200" y2="630"/>
+    <line x1="300" y1="0" x2="300" y2="630"/>
+    <line x1="400" y1="0" x2="400" y2="630"/>
+    <line x1="500" y1="0" x2="500" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/>
+    <line x1="700" y1="0" x2="700" y2="630"/>
+    <line x1="800" y1="0" x2="800" y2="630"/>
+    <line x1="900" y1="0" x2="900" y2="630"/>
+    <line x1="1000" y1="0" x2="1000" y2="630"/>
+    <line x1="1100" y1="0" x2="1100" y2="630"/>
+  </g>
+
+  <!-- brand mark -->
+  <g transform="translate(80, 80)">
+    <rect width="44" height="44" rx="12" fill="url(#grad)"/>
+    <path d="M14 30 L20 22 L25 26 L32 16" stroke="#05120e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="60" y="29" font-family="JetBrains Mono, monospace" font-size="16" font-weight="800" fill="#f4f4f5" letter-spacing="3">TRADE LOG PRO</text>
+  </g>
+
+  <!-- equity curve illustration on right -->
+  <g transform="translate(680, 200)">
+    <path d="M0,200 L60,180 L120,170 L180,140 L240,150 L300,110 L360,90 L420,60 L480,30 L480,200 Z" fill="url(#fill)"/>
+    <path d="M0,200 L60,180 L120,170 L180,140 L240,150 L300,110 L360,90 L420,60 L480,30" fill="none" stroke="url(#line)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="480" cy="30" r="6" fill="#10d9a0"/>
+    <circle cx="480" cy="30" r="14" fill="#10d9a0" fill-opacity="0.25"/>
+  </g>
+
+  <!-- main headline -->
+  <text x="80" y="290" font-family="Outfit, system-ui, sans-serif" font-size="76" font-weight="800" fill="#f4f4f5" letter-spacing="-2.5">Find your edge.</text>
+  <text x="80" y="370" font-family="Outfit, system-ui, sans-serif" font-size="76" font-weight="800" letter-spacing="-2.5">
+    <tspan fill="#10d9a0">Stop guessing.</tspan>
+  </text>
+
+  <!-- subheadline -->
+  <text x="80" y="440" font-family="Outfit, system-ui, sans-serif" font-size="22" font-weight="400" fill="#a1a1aa" letter-spacing="-0.3">A trading journal that calculates your real edge —</text>
+  <text x="80" y="470" font-family="Outfit, system-ui, sans-serif" font-size="22" font-weight="400" fill="#a1a1aa" letter-spacing="-0.3">expectancy, R-multiple, win rate, and which setups bleed you.</text>
+
+  <!-- pill stats -->
+  <g transform="translate(80, 520)">
+    <rect width="170" height="42" rx="10" fill="rgba(16,217,160,0.1)" stroke="#10d9a0" stroke-opacity="0.3"/>
+    <text x="20" y="27" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="#10d9a0">FREE FOREVER</text>
+
+    <rect x="186" width="200" height="42" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)"/>
+    <text x="206" y="27" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="#f4f4f5">YOUR DATA, YOUR DEVICE</text>
+
+    <rect x="402" width="170" height="42" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)"/>
+    <text x="422" y="27" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="#f4f4f5">NO SIGNUP</text>
+  </g>
+</svg>

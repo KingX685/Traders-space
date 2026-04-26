@@ -1,0 +1,20 @@
+{
+  "name": "Trade Log Pro",
+  "short_name": "TradeLog",
+  "description": "Premium trading journal — find your edge.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#05120e",
+  "theme_color": "#05120e",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "productivity", "business"]
+}
