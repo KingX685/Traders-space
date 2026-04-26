@@ -368,7 +368,7 @@ function WaitlistModal({ onClose }) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e?.preventDefault();
     if (!email.includes('@')) return;
     // Store locally so the user sees confirmation. To collect real signups,

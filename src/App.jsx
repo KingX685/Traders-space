@@ -2057,7 +2057,7 @@ function UpgradeModal({ open, onClose, showToast }) {
 
   useEffect(() => { if (!open) { setEmail(''); setSubmitted(false); } }, [open]);
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e?.preventDefault();
     if (!email.includes('@')) return;
     // Local storage now; swap to Formspree fetch() when ready.
