@@ -573,14 +573,13 @@ function Toast({ toast, onDone }) {
 function Onboarding({ onDone }) {
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
-  const [welcome, setWelcome] = useState('King');
   const [balance, setBalance] = useState('10000');
   const [theme, setTheme] = useState('green');
 
   const finish = async () => {
     const profile = {
       name: name.trim() || 'Trader',
-      welcomeMessage: welcome.trim() || name.trim() || 'Trader',
+      welcomeMessage: name.trim() || 'Trader',
       startingBalance: parseFloat(balance) || 0,
       theme,
       confluenceCheckSeconds: 20,
@@ -614,15 +613,10 @@ function Onboarding({ onDone }) {
         {step === 0 && (
           <div className="tlp-onboard-step">
             <h1 className="tlp-h1">Welcome, trader.</h1>
-            <p className="tlp-sub">Let's set up your journal. This takes 20 seconds.</p>
+            <p className="tlp-sub">Your personal trading journal. Log trades, track your edge, and understand what's actually working — in under a minute of setup.</p>
             <label className="tlp-field">
               <span>Your name</span>
               <input className="tlp-input" autoFocus value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Alvin" />
-            </label>
-            <label className="tlp-field">
-              <span>Welcome message (what the app calls you)</span>
-              <input className="tlp-input" value={welcome} onChange={e => setWelcome(e.target.value)} placeholder="King" />
-              <small className="tlp-hint">Shown on app launch: "Welcome, {welcome || 'King'}"</small>
             </label>
             <Btn full onClick={() => name.trim() && setStep(1)} disabled={!name.trim()}>
               Continue <ChevronRight size={16} />
@@ -633,13 +627,14 @@ function Onboarding({ onDone }) {
         {step === 1 && (
           <div className="tlp-onboard-step">
             <h1 className="tlp-h1">Starting balance</h1>
-            <p className="tlp-sub">Every metric is calculated from here. You can change it later.</p>
+            <p className="tlp-sub">Enter your current account size. This is used to calculate your equity curve and growth percentage. You can update it anytime in Settings.</p>
             <label className="tlp-field">
-              <span>Account starting balance (USD)</span>
+              <span>Account balance (USD)</span>
               <div className="tlp-input-prefix">
                 <span>$</span>
                 <input className="tlp-input" type="number" value={balance} onChange={e => setBalance(e.target.value)} placeholder="10000" autoFocus />
               </div>
+              <small className="tlp-hint">Not your real money — just the number to track growth from. If you trade a $500 account, enter 500.</small>
             </label>
             <div className="tlp-row">
               <Btn variant="ghost" onClick={() => setStep(0)}>Back</Btn>
@@ -727,16 +722,16 @@ function ConfluenceCheckScreen({ confluences, seconds, onDone }) {
         <div className="tlp-check-head">
           <div className="tlp-check-label">
             <Zap size={14} />
-            <span>PRE-TRADE CHECK</span>
+            <span>PRE-TRADE CHECKLIST</span>
           </div>
           <button className="tlp-skip" onClick={onDone}>Skip →</button>
         </div>
-        <h2 className="tlp-check-title">Have you confirmed your edge?</h2>
-        <p className="tlp-check-sub">Tap what you've actually validated on the chart. {active.length} active confluences.</p>
+        <h2 className="tlp-check-title">Before you trade — confirm your edge</h2>
+        <p className="tlp-check-sub">These are your personal trading rules (called <strong>confluences</strong>). Tick only what you've actually verified on the chart right now. This pause helps you avoid impulse trades.</p>
 
         <div className="tlp-check-list">
           {active.length === 0 && (
-            <div className="tlp-empty-sm">No active confluences. Add some in Setup to enable this check.</div>
+            <div className="tlp-empty-sm">No confluences set up yet. Go to Settings → Confluences to add your trading rules.</div>
           )}
           {active.map(c => (
             <label key={c.id} className={`tlp-check-item ${checked[c.id] ? 'tlp-checked' : ''}`}>
@@ -1100,9 +1095,9 @@ function Dashboard({ profile, trades, stats, onOpenTrade, onLog, marketData, onO
         {recent.length === 0 ? (
           <GlassPanel className="tlp-empty">
             <Activity size={28} style={{ color: 'var(--accent)' }} />
-            <div className="tlp-empty-title">No trades yet</div>
-            <div className="tlp-empty-sub">Tap the + button to log your first trade.</div>
-            <Btn onClick={onLog}>Log a trade</Btn>
+            <div className="tlp-empty-title">No trades logged yet</div>
+            <div className="tlp-empty-sub">Tap the <strong>+</strong> button in the bottom bar to log your first trade. Your equity curve, win rate, and all stats will appear here automatically.</div>
+            <Btn onClick={onLog}>Log my first trade</Btn>
           </GlassPanel>
         ) : (
           recent.map(t => <TradeRow key={t.id} trade={t} onClick={() => onOpenTrade(t)} />)
@@ -1291,8 +1286,9 @@ function TradeForm({ open, onClose, onSave, confluences, editing, onDelete, show
 
         <div className="tlp-grid-2-form">
           <label className="tlp-field">
-            <span>Lot size</span>
+            <span>Lot size <small style={{ opacity: 0.6, fontWeight: 500 }}>(optional)</small></span>
             <input className="tlp-input" type="number" step="0.01" value={lotSize} onChange={e => setLotSize(e.target.value)} placeholder="0.10" />
+            <small className="tlp-hint">Your position size. e.g. 0.01 micro, 0.10 mini, 1.00 standard lot.</small>
           </label>
           <label className="tlp-field">
             <span>P&L (USD)</span>
@@ -1346,10 +1342,10 @@ function TradeForm({ open, onClose, onSave, confluences, editing, onDelete, show
         </label>
 
         <div className="tlp-field">
-          <span>Confluences met</span>
+          <span>Confluences met <small style={{ opacity: 0.6, fontWeight: 500 }}>(your trading rules)</small></span>
           <div className="tlp-conf-picker">
             {confluences.filter(c => c.active).length === 0 && (
-              <div className="tlp-empty-sm">Add confluences in the Setup tab first.</div>
+              <div className="tlp-empty-sm">No confluences set up yet. Add your trading rules in Settings → Confluences, then tag them to trades here.</div>
             )}
             {confluences.filter(c => c.active).map(c => {
               const on = confIds.includes(c.id);
@@ -1372,6 +1368,10 @@ function TradeForm({ open, onClose, onSave, confluences, editing, onDelete, show
               </button>
             ))}
           </div>
+          <small className="tlp-hint" style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span>1 ★ = broke my rules</span>
+            <span>5 ★ = executed perfectly</span>
+          </small>
         </div>
 
         <label className="tlp-field">
@@ -1766,16 +1766,16 @@ function AccountCardSlot({ onSignOut }) {
 
 function SettingsView({ profile, setProfile, trades, confluences, onReset, showToast, onUpgrade, onShowAuth, onShowSignOut }) {
   const [name, setName] = useState(profile.name);
-  const [welcome, setWelcome] = useState(profile.welcomeMessage);
   const [balance, setBalance] = useState(String(profile.startingBalance));
   const [checkEnabled, setCheckEnabled] = useState(profile.confluenceCheckEnabled ?? true);
   const [checkSec, setCheckSec] = useState(profile.confluenceCheckSeconds ?? 20);
 
   const save = async () => {
+    const trimmedName = name.trim() || profile.name;
     const next = {
       ...profile,
-      name: name.trim() || profile.name,
-      welcomeMessage: welcome.trim() || profile.welcomeMessage,
+      name: trimmedName,
+      welcomeMessage: trimmedName,
       startingBalance: parseFloat(balance) || profile.startingBalance,
       confluenceCheckEnabled: checkEnabled,
       confluenceCheckSeconds: Math.max(5, Math.min(120, parseInt(checkSec) || 20)),
@@ -1820,16 +1820,15 @@ function SettingsView({ profile, setProfile, trades, confluences, onReset, showT
       <AccountBanner onSignIn={onShowAuth} />
       <AccountCardSlot onSignOut={onShowSignOut} />
 
-      <button className="tlp-pro-card" onClick={onUpgrade}>
-        <div className="tlp-pro-card-icon"><Crown size={18} /></div>
-        <div className="tlp-pro-card-text">
-          <div className="tlp-pro-card-title">Upgrade to Pro</div>
-          <div className="tlp-pro-card-sub">Unlock setup expectancy, AI trade review, cloud sync</div>
+      <GlassPanel style={{ padding: '14px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Sparkles size={16} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 14 }}>All features are free</div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Setup expectancy, confluence performance, missed trades — all unlocked. AI Trade Review is coming soon.</div>
+          </div>
         </div>
-        <div className="tlp-pro-card-cta">
-          <Sparkles size={14} />
-        </div>
-      </button>
+      </GlassPanel>
 
       <GlassPanel className="tlp-settings-section">
         <h3 className="tlp-section-title"><Palette size={14} /> Theme</h3>
@@ -1846,17 +1845,14 @@ function SettingsView({ profile, setProfile, trades, confluences, onReset, showT
       <GlassPanel className="tlp-settings-section">
         <h3 className="tlp-section-title">Profile</h3>
         <label className="tlp-field">
-          <span>Name</span>
+          <span>Your name</span>
           <input className="tlp-input" value={name} onChange={e => setName(e.target.value)} />
+          <small className="tlp-hint">Used in the app greeting and reports.</small>
         </label>
         <label className="tlp-field">
-          <span>Welcome message</span>
-          <input className="tlp-input" value={welcome} onChange={e => setWelcome(e.target.value)} />
-        </label>
-        <label className="tlp-field">
-          <span>Starting balance</span>
+          <span>Account balance (USD)</span>
           <input className="tlp-input" type="number" value={balance} onChange={e => setBalance(e.target.value)} />
-          <small className="tlp-hint">Changes the baseline for equity & growth calculations.</small>
+          <small className="tlp-hint">The baseline for your equity curve and growth %. Update this if you deposit or withdraw funds.</small>
         </label>
       </GlassPanel>
 
@@ -2063,61 +2059,47 @@ function AnalyticsView({ profile, trades, missedTrades = [], stats, confluences,
         </GlassPanel>
       </div>
 
-      {/* PRO: Setup Performance — locked preview */}
+      {/* Setup Performance — now free */}
       <div className="tlp-an-block">
         <div className="tlp-an-head">
           <h3>Setup-by-setup expectancy</h3>
-          <span className="tlp-an-tag tlp-tag-pro"><Lock size={9} /> PRO</span>
+          <span className="tlp-an-tag tlp-tag-free">FREE</span>
         </div>
         <p className="tlp-an-desc">Which strategies actually make you money. Cut the losers, scale the winners.</p>
-        <GlassPanel className="tlp-pro-locked">
-          <div className="tlp-pro-blur">
-            {setupPerf.slice(0, 3).map((s, i) => (
+        <GlassPanel>
+          {setupPerf.length === 0 ? (
+            <div className="tlp-empty-sm">Add a setup type when logging trades to see performance here.</div>
+          ) : (
+            setupPerf.map((s, i) => (
               <div key={i} className="tlp-perf-row">
                 <div className="tlp-perf-name">{s.setup}</div>
                 <div className={`tlp-perf-val ${s.expectancy >= 0 ? 'tlp-up' : 'tlp-down'}`}>{fmtMoney(s.expectancy)}</div>
-                <div className="tlp-perf-meta">{s.count} trades · {s.winRate.toFixed(0)}% win</div>
+                <div className="tlp-perf-meta">{s.count} trade{s.count !== 1 ? 's' : ''} · {s.winRate.toFixed(0)}% win</div>
               </div>
-            ))}
-            {setupPerf.length === 0 && (
-              <div className="tlp-perf-row"><div className="tlp-perf-name">Add setup types to your trades to unlock</div></div>
-            )}
-          </div>
-          <div className="tlp-pro-overlay">
-            <div className="tlp-pro-overlay-icon"><Crown size={22} /></div>
-            <div className="tlp-pro-overlay-title">Unlock with Pro</div>
-            <div className="tlp-pro-overlay-sub">See expectancy, win rate, and average R for each of your setups.</div>
-            <Btn size="sm" onClick={onUpgrade}>Join the waitlist <Sparkles size={12} /></Btn>
-          </div>
+            ))
+          )}
         </GlassPanel>
       </div>
 
-      {/* PRO: Confluence Performance — locked preview */}
+      {/* Confluence Performance — now free */}
       <div className="tlp-an-block">
         <div className="tlp-an-head">
           <h3>Confluence performance</h3>
-          <span className="tlp-an-tag tlp-tag-pro"><Lock size={9} /> PRO</span>
+          <span className="tlp-an-tag tlp-tag-free">FREE</span>
         </div>
         <p className="tlp-an-desc">Which checklist items actually predict winners. Some confluences are real edge — others are noise.</p>
-        <GlassPanel className="tlp-pro-locked">
-          <div className="tlp-pro-blur">
-            {conflPerf.slice(0, 3).map((c, i) => (
+        <GlassPanel>
+          {conflPerf.length === 0 ? (
+            <div className="tlp-empty-sm">Tag trades with confluences when logging to see which ones are actually working.</div>
+          ) : (
+            conflPerf.map((c, i) => (
               <div key={i} className="tlp-perf-row">
                 <div className="tlp-perf-name">{c.name}</div>
                 <div className={`tlp-perf-val ${c.expectancy >= 0 ? 'tlp-up' : 'tlp-down'}`}>{fmtMoney(c.expectancy)}</div>
-                <div className="tlp-perf-meta">{c.count} trades · {c.winRate.toFixed(0)}% win</div>
+                <div className="tlp-perf-meta">{c.count} trade{c.count !== 1 ? 's' : ''} · {c.winRate.toFixed(0)}% win</div>
               </div>
-            ))}
-            {conflPerf.length === 0 && (
-              <div className="tlp-perf-row"><div className="tlp-perf-name">Tag trades with confluences to unlock</div></div>
-            )}
-          </div>
-          <div className="tlp-pro-overlay">
-            <div className="tlp-pro-overlay-icon"><Crown size={22} /></div>
-            <div className="tlp-pro-overlay-title">Unlock with Pro</div>
-            <div className="tlp-pro-overlay-sub">Find out which confluences are edge and which are confirmation bias.</div>
-            <Btn size="sm" onClick={onUpgrade}>Join the waitlist <Sparkles size={12} /></Btn>
-          </div>
+            ))
+          )}
         </GlassPanel>
       </div>
 
@@ -2131,14 +2113,13 @@ function AnalyticsView({ profile, trades, missedTrades = [], stats, confluences,
         <MissedOpportunityReport missedTrades={missedTrades} onLogMissed={onLogMissed} />
       </div>
 
-      {/* PRO: AI Trade Review teaser */}
+      {/* AI Trade Review — coming soon */}
       <GlassPanel className="tlp-pro-teaser">
         <div className="tlp-pro-teaser-icon"><Brain size={20} /></div>
         <div className="tlp-pro-teaser-text">
-          <div className="tlp-pro-teaser-title">AI Trade Review <span className="tlp-an-tag tlp-tag-pro"><Lock size={9} /> PRO</span></div>
-          <p>Get an honest analysis of any trade. What you did right, what was emotional, what to do differently.</p>
+          <div className="tlp-pro-teaser-title">AI Trade Review <span className="tlp-an-tag" style={{ background: 'rgba(167,139,250,0.15)', color: '#a78bfa', borderColor: 'rgba(167,139,250,0.3)' }}>Coming soon</span></div>
+          <p>Get an honest AI analysis of any trade. What you did right, what was emotional, what to do differently.</p>
         </div>
-        <Btn size="sm" variant="ghost" onClick={onUpgrade}>Learn more</Btn>
       </GlassPanel>
 
       <div className="tlp-foot-note" style={{ marginTop: 8 }}>
@@ -3329,15 +3310,16 @@ function BottomNav({ view, setView, onLog }) {
     { key: 'home', icon: Home, label: 'Home' },
     { key: 'calendar', icon: CalIcon, label: 'Calendar' },
     { key: 'fab', icon: Plus, label: 'Log' },
-    { key: 'analytics', icon: BarChart3, label: 'Analytics' },
+    { key: 'analytics', icon: BarChart3, label: 'Stats' },
     { key: 'journal', icon: BookOpen, label: 'Journal' },
+    { key: 'settings', icon: SettingsIcon, label: 'Settings' },
   ];
   return (
     <nav className="tlp-nav">
       {items.map(it => {
         if (it.key === 'fab') {
           return (
-            <button key="fab" className="tlp-fab" onClick={onLog}>
+            <button key="fab" className="tlp-fab" onClick={onLog} title="Log a trade">
               <Plus size={22} />
             </button>
           );
@@ -3648,11 +3630,8 @@ export default function App() {
                     </span>
                   </div>
                 )}
-                <button className="tlp-icon-btn tlp-utility-btn" onClick={() => setStatementImportOpen(true)} aria-label="Import statement">
+                <button className="tlp-icon-btn tlp-utility-btn" onClick={() => setStatementImportOpen(true)} aria-label="Import MT4/MT5 statement">
                   <Upload size={14} />
-                </button>
-                <button className="tlp-icon-btn tlp-utility-btn" onClick={() => setView('settings')} aria-label="Settings">
-                  <SettingsIcon size={14} />
                 </button>
               </div>
             )}
@@ -4180,7 +4159,7 @@ function GlobalStyles() {
       .tlp-foot-note { text-align: center; font-size: 10px; color: var(--muted); letter-spacing: 0.14em; font-weight: 600; text-transform: uppercase; padding: 16px 0 8px; display: inline-flex; gap: 6px; align-items: center; justify-content: center; width: 100%; opacity: 0.5; }
 
       /* ==== BOTTOM NAV ==== */
-      .tlp-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--panel-solid); border-top: 1px solid var(--border); backdrop-filter: blur(24px) saturate(180%); padding: 6px 10px calc(env(safe-area-inset-bottom, 6px) + 6px); display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; z-index: 50; max-width: 560px; margin: 0 auto; border-radius: 22px 22px 0 0; }
+      .tlp-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--panel-solid); border-top: 1px solid var(--border); backdrop-filter: blur(24px) saturate(180%); padding: 6px 6px calc(env(safe-area-inset-bottom, 6px) + 6px); display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; z-index: 50; max-width: 560px; margin: 0 auto; border-radius: 22px 22px 0 0; }
       @media (min-width: 640px) { .tlp-nav { bottom: 16px; border-radius: 22px; border: 1px solid var(--border); box-shadow: 0 8px 40px rgba(0,0,0,0.25); } }
       .tlp-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border-radius: 10px; color: var(--muted); font-size: 10px; font-weight: 600; transition: all 0.15s ease; }
       .tlp-nav-item.tlp-active { color: var(--accent); }
